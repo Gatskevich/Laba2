@@ -7,7 +7,7 @@
 #include <mutex>
 #include <vector>
 
-std::mutex g_lock;
+std::mutex th;
 //int namTaskAtomic[1048576];
 std::atomic<int> namTaskAtomic[1048576]{0};
 int *namTaskMutex = new int[1048576];
@@ -20,7 +20,8 @@ void threadFunctionAtomic()
     while (count_atomic < 1048576) {
 
         int temp = count_atomic.fetch_add(1);
-        std::atomic_fetch_add(&namTaskAtomic[temp], 1);
+        namTaskAtomic[temp]++;
+        //std::atomic_fetch_add(&namTaskAtomic[temp], 1);
        //std::this_thread::sleep_for(std::chrono::nanoseconds(10));
     }
 }
@@ -28,11 +29,11 @@ void threadFunctionMutex()
 {
     while (count < 1048576) {
 
-        g_lock.lock();
+        th.lock();
         namTaskMutex[count]++;
         count++;
         //std::this_thread::sleep_for(std::chrono::nanoseconds(10));
-        g_lock.unlock();
+        th.unlock();
     }
 }
 
@@ -47,9 +48,6 @@ int main()
     for (int i = 0; i < 32; i++) {
         mutex_th[i].join();
     }
-    for (int i = 0; i < 1048576; i++) {
-        std::cout << namTaskMutex[i];
-    }
     clock_t end = clock();
     double seconds = (double)(end - start) / CLK_TCK;
     std::cout << seconds << std::endl;
@@ -63,4 +61,5 @@ int main()
     seconds = (double)(end - start) / CLK_TCK;
     std::cout << seconds << std::endl;
     return 0;
+    
 }

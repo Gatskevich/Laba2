@@ -10,7 +10,7 @@ std::vector<std::thread> consumer;
 std::vector<std::thread> producerConst;
 std::vector<std::thread> consumerConst;
 std::mutex mutex_thread;
-const int queueSize = 1;
+const int queueSize =4;
 int count = 0, prodcount = 0;
 int summ = 0;
 int TaskNum = 4 * 1024 * 1024;
@@ -44,11 +44,11 @@ void Producer()
 		int value = 1;
 		mutex_thread.lock();
 		q.push(value);
-		mutex_thread.unlock();
+		
 		localcount++;
 		count++;
 		prodcount++;
-		
+		mutex_thread.unlock();
 
 	}
 
@@ -65,7 +65,6 @@ void Consumer()
 		mutex_thread.unlock();
 		if (!temp && (prodcount == TaskNum)) {
 			std::cout << "Empty";
-
 			a = false;
 		}
 		else {
@@ -121,7 +120,7 @@ void main() {
 	}
 	clock_t end = clock();
 	double seconds = (double)(end - start) / CLK_TCK;
-	std::cout <<"Producer: " << seconds << std::endl;
+	std::cout <<"Producer: " << seconds<< std::endl << prodcount << std::endl;
 	start = clock();
 	for (int i = 0; i < 1; i++)
 		consumer.push_back(std::thread(Consumer));
